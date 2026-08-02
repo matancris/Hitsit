@@ -1,0 +1,98 @@
+[
+  {
+    "id": "fixture-01",
+    "uri": "spotify:track:fixture-01",
+    "title": "Rock Around the Clock",
+    "artist": "Bill Haley & His Comets",
+    "year": 1954,
+    "confidence": "reviewed"
+  },
+  {
+    "id": "fixture-02",
+    "uri": "spotify:track:fixture-02",
+    "title": "(I Can't Get No) Satisfaction",
+    "artist": "The Rolling Stones",
+    "year": 1965,
+    "confidence": "reviewed"
+  },
+  {
+    "id": "fixture-03",
+    "uri": "spotify:track:fixture-03",
+    "title": "Bohemian Rhapsody",
+    "artist": "Queen",
+    "year": 1975,
+    "confidence": "confident"
+  },
+  {
+    "id": "fixture-04",
+    "uri": "spotify:track:fixture-04",
+    "title": "Upside Down",
+    "artist": "Diana Ross",
+    "year": 1980,
+    "confidence": "reviewed"
+  },
+  {
+    "id": "fixture-05",
+    "uri": "spotify:track:fixture-05",
+    "title": "Billie Jean",
+    "artist": "Michael Jackson",
+    "year": 1982,
+    "confidence": "confident"
+  },
+  {
+    "id": "fixture-06",
+    "uri": "spotify:track:fixture-06",
+    "title": "Walk of Life",
+    "artist": "Dire Straits",
+    "year": 1985,
+    "confidence": "confident"
+  },
+  {
+    "id": "fixture-07",
+    "uri": "spotify:track:fixture-07",
+    "title": "Smells Like Teen Spirit",
+    "artist": "Nirvana",
+    "year": 1991,
+    "confidence": "reviewed"
+  },
+  {
+    "id": "fixture-08",
+    "uri": "spotify:track:fixture-08",
+    "title": "The Rhythm of the Night",
+    "artist": "Corona",
+    "year": 1993,
+    "confidence": "confident"
+  },
+  {
+    "id": "fixture-09",
+    "uri": "spotify:track:fixture-09",
+    "title": "Crazy in Love",
+    "artist": "Beyoncé",
+    "year": 2003,
+    "confidence": "reviewed"
+  },
+  {
+    "id": "fixture-10",
+    "uri": "spotify:track:fixture-10",
+    "title": "Rolling in the Deep",
+    "artist": "Adele",
+    "year": 2010,
+    "confidence": "confident"
+  },
+  {
+    "id": "fixture-11",
+    "uri": "spotify:track:fixture-11",
+    "title": "Blinding Lights",
+    "artist": "The Weeknd",
+    "year": 2019,
+    "confidence": "reviewed"
+  },
+  {
+    "id": "fixture-12",
+    "uri": "spotify:track:fixture-12",
+    "title": "Get Lucky",
+    "artist": "Daft Punk",
+    "year": 2013,
+    "confidence": "reviewed"
+  }
+]

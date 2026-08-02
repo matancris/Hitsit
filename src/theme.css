@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+
+/* ─────────────────────────────────────────────────────────────
+   HitsIt design tokens — the 7-inch single.
+   The one bold move is the decade spectrum: every card is tinted
+   by the decade it belongs to, so a finished timeline reads as a
+   gradient running warm to cool. It encodes the information the
+   game is actually about. Everything else stays quiet.
+   ───────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-ink: #12131a;
+  --color-raised: #1c1e28;
+  --color-edge: #2a2d3a;
+  --color-ivory: #f2efe6;
+  --color-muted: #8b8fa3;
+
+  --color-correct: #5fcf8c;
+  --color-wrong: #e05a5a;
+
+  /* The decade spectrum. Ordered, not arbitrary — warm past, cool present. */
+  --color-dec-early: #c4713d; /* pre-1960 */
+  --color-dec-60: #d9a441;
+  --color-dec-70: #d4573f;
+  --color-dec-80: #c2417e;
+  --color-dec-90: #5e63c7;
+  --color-dec-00: #2f8fa8;
+  --color-dec-10: #3fa46a; /* 2010 and later */
+
+  --font-display: 'Archivo', 'Arial Black', sans-serif;
+  --font-body: 'Inter Tight', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-card: 14px;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-ink);
+    color: var(--color-ivory);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    /* The game is a fixed board, not a document. Only the rail scrolls. */
+    overscroll-behavior: none;
+  }
+
+  /* A year is the punchline, so it lands monumental and scoreboard-wide. */
+  .year {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 125, 'wght' 800;
+    font-feature-settings: 'tnum' 1;
+    letter-spacing: -0.02em;
+    line-height: 0.85;
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ivory);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
