@@ -1,0 +1,23 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.tsbuildinfo
+.env
+.env.local
+
+# Deck builder working files
+.spotify-token.json
+data/deck.review.csv
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.log
+.vercel
+.env*
+# …but the template must stay tracked; it documents the required vars.
+!.env.example
