@@ -35,30 +35,36 @@ function Gap({
 }) {
   if (!active) {
     return highlighted ? (
-      <div className="flex h-10 items-center gap-3 px-1" aria-hidden>
-        <span className="ml-[7px] h-px flex-1 bg-correct" />
-        <span className="meta text-correct">belongs here</span>
+      <div
+        className="my-1 ml-9 flex h-11 items-center justify-center rounded-lg
+          border border-correct bg-correct/15"
+        aria-hidden
+      >
+        <span className="meta font-semibold text-correct">belongs here</span>
       </div>
     ) : (
       <div className="h-2.5" aria-hidden />
     )
   }
 
+  // A dashed slot rather than a hairline: on a phone there is no hover to
+  // reveal anything, so the resting state has to read as a drop target on its
+  // own. The indent leaves the decade rail visible down the left.
   return (
     <button
       type="button"
       onClick={() => onPlace(index)}
       aria-label={`Place the song at position ${index + 1}`}
-      className="group -mx-1 flex h-12 w-full items-center gap-3 rounded-lg px-1
-        transition-colors duration-150 hover:bg-ivory/5 active:bg-ivory/10"
+      className="my-1 ml-9 flex h-11 w-[calc(100%-2.25rem)] items-center justify-center gap-2
+        rounded-lg border border-dashed border-ivory/30 bg-ivory/[0.04]
+        transition-all duration-150
+        hover:border-ivory/60 hover:bg-ivory/10
+        active:scale-[0.99] active:border-ivory active:bg-ivory/20"
     >
-      <span
-        className="ml-[7px] h-px flex-1 bg-edge transition-colors duration-150
-          group-hover:bg-ivory/40 group-active:bg-ivory/60"
-      />
-      <span className="meta opacity-45 transition-opacity duration-150 group-hover:opacity-90">
-        place here
+      <span className="text-base leading-none text-ivory/60" aria-hidden>
+        +
       </span>
+      <span className="meta font-semibold text-ivory/75">place here</span>
     </button>
   )
 }
