@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { DeckScreen } from '@/components/DeckScreen'
 import { Progress } from '@/components/Progress'
 import { Timeline } from '@/components/Timeline'
 import { NowPlaying } from '@/components/NowPlaying'
@@ -26,6 +27,7 @@ export default function App() {
   } = useGame()
 
   const player = usePlayer()
+  const [showDeck, setShowDeck] = useState(false)
 
   // Start the track as soon as a card is drawn; the store flips to 'placing'
   // once playback is actually rolling, so gaps can't be tapped early.
@@ -42,11 +44,22 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
+  if (showDeck) {
+    return (
+      <DeckScreen
+        onBack={() => setShowDeck(false)}
+        onPreview={(uri) => void player.play(uri)}
+        previewing={false}
+      />
+    )
+  }
+
   if (phase === 'idle') {
     return (
       <Start
         onStart={() => loadDeck().then(startGame)}
         onConnect={player.connect}
+        onBrowse={() => setShowDeck(true)}
         needsAuth={player.needsAuth}
         note={player.note}
       />
@@ -101,11 +114,13 @@ export default function App() {
 function Start({
   onStart,
   onConnect,
+  onBrowse,
   needsAuth,
   note,
 }: {
   onStart: () => void
   onConnect: () => void
+  onBrowse: () => void
   needsAuth: boolean
   note: string | null
 }) {
@@ -146,6 +161,14 @@ function Start({
           {needsAuth ? 'Play without sound' : 'Start practising'}
         </button>
       </div>
+
+      <button
+        type="button"
+        onClick={onBrowse}
+        className="meta underline-offset-4 normal-case hover:underline"
+      >
+        Browse the deck
+      </button>
 
       {note && <p className="meta max-w-xs normal-case">{note}</p>}
     </main>

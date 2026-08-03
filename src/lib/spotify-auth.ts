@@ -15,7 +15,21 @@ const SCOPES = [
   'user-read-playback-state',
 ].join(' ')
 
-export const redirectUri = (): string => `${window.location.origin}/callback`
+/**
+ * Where Spotify sends the user back.
+ *
+ * This deliberately does not always use window.location.origin. Every Vercel
+ * build gets its own URL (hitsit-<hash>-….vercel.app), and those can never be
+ * registered as redirect URIs because they change each deploy — opening one
+ * fails with "redirect_uri: Not matching configuration". Pinning production to
+ * the canonical domain means auth works no matter which alias was opened.
+ *
+ * Left unset in local development, so localhost still redirects to itself.
+ */
+const PINNED_ORIGIN = import.meta.env.VITE_REDIRECT_ORIGIN as string | undefined
+
+export const redirectUri = (): string =>
+  `${PINNED_ORIGIN?.replace(/\/$/, '') ?? window.location.origin}/callback`
 
 export const isConfigured = (): boolean => Boolean(CLIENT_ID)
 

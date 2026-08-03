@@ -19,6 +19,22 @@ export interface DeckEntry extends Card {
   confidence: YearConfidence
 }
 
+/** A track the builder could not corroborate, awaiting a human call. */
+export interface ReviewEntry {
+  id: string
+  uri: string
+  title: string
+  artist: string
+  art?: string
+  /** The builder's best guess — not fact until approved. */
+  suggested?: number
+  candidates: {
+    spotify?: number
+    isrc?: number
+    search?: number
+  }
+}
+
 export type Phase =
   | 'idle'
   | 'drawing'

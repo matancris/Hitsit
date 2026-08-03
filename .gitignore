@@ -17,3 +17,7 @@ data/deck.review.csv
 .DS_Store
 Thumbs.db
 *.log
+.vercel
+.env*
+# …but the template must stay tracked; it documents the required vars.
+!.env.example

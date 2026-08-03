@@ -33,6 +33,7 @@ const TOKEN_PATH = resolve('.spotify-token.json')
 const CACHE_PATH = resolve('data/.musicbrainz-cache.json')
 const OVERRIDES_PATH = resolve('data/year-overrides.json')
 const DECK_PATH = resolve('src/data/deck.json')
+const REVIEW_JSON_PATH = resolve('src/data/review.json')
 const REVIEW_PATH = resolve('data/deck.review.csv')
 
 type Confidence = 'confident' | 'reviewed' | 'needs-review'
@@ -296,6 +297,27 @@ async function main() {
     })),
   )
 
+  // Flagged tracks also ship as JSON so the in-app review screen can show them,
+  // play them, and let a corrected year be approved. The CSV stays for anyone
+  // who would rather fix a batch in a spreadsheet.
+  writeJson(
+    REVIEW_JSON_PATH,
+    review.map((r) => ({
+      id: r.id,
+      uri: r.uri,
+      title: r.title,
+      artist: r.artist,
+      art: r.art,
+      /** Best guess. Deliberately not treated as fact until approved. */
+      suggested: r.year,
+      candidates: {
+        spotify: r.spotifyYear,
+        isrc: r.isrcYear,
+        search: r.searchYear,
+      },
+    })),
+  )
+
   const header = 'id,title,artist,spotify_year,isrc_year,search_year,suggested_year'
   const rows = review.map((r) =>
     [r.id, r.title, r.artist, r.spotifyYear, r.isrcYear, r.searchYear, r.year]
@@ -316,6 +338,7 @@ async function main() {
   }
   console.log(`─────────────────────────────────────────────`)
   console.log(`\n  deck    → ${DECK_PATH}`)
+  console.log(`  review  → ${REVIEW_JSON_PATH}`)
   console.log(`  review  → ${REVIEW_PATH}`)
 
   if (review.length) {

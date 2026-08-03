@@ -34,6 +34,12 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Take over immediately instead of waiting for every tab to close.
+        // Without this a stale worker keeps serving an old bundle for days,
+        // which is invisible until something like an auth redirect breaks.
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         // The Spotify SDK and API must always hit the network — never serve them stale.
         navigateFallbackDenylist: [/^\/callback/],
         runtimeCaching: [
