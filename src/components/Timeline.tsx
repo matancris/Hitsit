@@ -35,36 +35,41 @@ function Gap({
 }) {
   if (!active) {
     return highlighted ? (
-      <div
-        className="my-1 ml-9 flex h-11 items-center justify-center rounded-lg
-          border border-correct bg-correct/15"
-        aria-hidden
-      >
-        <span className="meta font-semibold text-correct">belongs here</span>
+      <div className="my-0.5 flex h-10 items-center gap-3 pr-1 pl-9" aria-hidden>
+        <span className="h-px flex-1 bg-correct/60" />
+        <span className="meta rounded-full border border-correct bg-correct/15 px-3 py-1 font-semibold text-correct">
+          belongs here
+        </span>
+        <span className="h-px w-4 bg-correct/60" />
       </div>
     ) : (
       <div className="h-2.5" aria-hidden />
     )
   }
 
-  // A dashed slot rather than a hairline: on a phone there is no hover to
-  // reveal anything, so the resting state has to read as a drop target on its
-  // own. The indent leaves the decade rail visible down the left.
+  // A quiet separator carrying a pill: the line keeps the timeline reading as
+  // one continuous run, while the pill gives the tap target an obvious edge.
+  // Both stay legible at rest — on a phone there is no hover to reveal them.
   return (
     <button
       type="button"
       onClick={() => onPlace(index)}
       aria-label={`Place the song at position ${index + 1}`}
-      className="my-1 ml-9 flex h-11 w-[calc(100%-2.25rem)] items-center justify-center gap-2
-        rounded-lg border border-dashed border-ivory/30 bg-ivory/[0.04]
-        transition-all duration-150
-        hover:border-ivory/60 hover:bg-ivory/10
-        active:scale-[0.99] active:border-ivory active:bg-ivory/20"
+      className="group my-0.5 flex h-11 w-full items-center gap-3 pr-1 pl-9"
     >
-      <span className="text-base leading-none text-ivory/60" aria-hidden>
-        +
+      <span className="h-px flex-1 bg-ivory/25 transition-colors duration-150 group-hover:bg-ivory/50" />
+      <span
+        className="meta flex items-center gap-1.5 rounded-full border border-ivory/30 bg-raised
+          px-3 py-1 font-semibold text-ivory/80 transition-colors duration-150
+          group-hover:border-ivory/70 group-hover:text-ivory
+          group-active:bg-ivory group-active:text-ink"
+      >
+        <span className="text-sm leading-none" aria-hidden>
+          +
+        </span>
+        place here
       </span>
-      <span className="meta font-semibold text-ivory/75">place here</span>
+      <span className="h-px w-4 bg-ivory/25 transition-colors duration-150 group-hover:bg-ivory/50" />
     </button>
   )
 }
