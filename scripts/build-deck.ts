@@ -18,6 +18,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { MusicBrainz, MB_DELAY_MS } from './musicbrainz.ts'
+import { Previews, type Provider } from './previews.ts'
 
 try {
   process.loadEnvFile('.env')
@@ -31,6 +32,7 @@ const MIN_TRACKS = Number(process.env.DECK_MIN_TRACKS ?? 100)
 
 const TOKEN_PATH = resolve('.spotify-token.json')
 const CACHE_PATH = resolve('data/.musicbrainz-cache.json')
+const PREVIEW_CACHE_PATH = resolve('data/.previews-cache.json')
 const OVERRIDES_PATH = resolve('data/year-overrides.json')
 const DECK_PATH = resolve('src/data/deck.json')
 const REVIEW_JSON_PATH = resolve('src/data/review.json')
@@ -46,6 +48,8 @@ interface Track {
   isrc?: string
   art?: string
   spotifyYear?: number
+  /** Used to reject preview candidates that are edits, live cuts or covers. */
+  durationMs?: number
 }
 
 interface Resolved extends Track {
@@ -53,6 +57,9 @@ interface Resolved extends Track {
   searchYear?: number
   year?: number
   confidence: Confidence
+  /** 30-second clip, so the game works without a Spotify login. */
+  preview?: string
+  previewProvider?: Provider
 }
 
 // ─── small helpers ───────────────────────────────────────────────────────────
@@ -124,7 +131,7 @@ async function fetchPlaylist(token: string): Promise<Track[]> {
   // The old path still exists but answers 403.
   let url:
     | string
-    | null = `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items?limit=100&fields=next,items(is_local,item(id,uri,name,artists(name),external_ids(isrc),album(release_date,images)))`
+    | null = `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items?limit=100&fields=next,items(is_local,item(id,uri,name,duration_ms,artists(name),external_ids(isrc),album(release_date,images)))`
   let page = 0
 
   while (url) {
@@ -167,6 +174,7 @@ async function fetchPlaylist(token: string): Promise<Track[]> {
         isrc: t.external_ids?.isrc,
         art: t.album?.images?.at(-1)?.url ?? t.album?.images?.[0]?.url,
         spotifyYear: Number.isFinite(year) ? year : undefined,
+        durationMs: typeof t.duration_ms === 'number' ? t.duration_ms : undefined,
       })
     }
 
@@ -180,6 +188,7 @@ async function fetchPlaylist(token: string): Promise<Track[]> {
 // ─── MusicBrainz ─────────────────────────────────────────────────────────────
 
 const mb = new MusicBrainz(readJson<Record<string, number>>(CACHE_PATH, {}))
+const previews = new Previews(readJson<Record<string, unknown>>(PREVIEW_CACHE_PATH, {}))
 
 // ─── triage ──────────────────────────────────────────────────────────────────
 
@@ -281,6 +290,28 @@ async function main() {
 
   writeJson(CACHE_PATH, mb.cacheData)
 
+  // ── previews ───────────────────────────────────────────────────────────────
+  // A 30-second clip per track is what lets the game work without a Spotify
+  // login, and so for more than the five people Development Mode allows.
+  console.log(`\nFinding 30s previews (iTunes, then Deezer) …`)
+
+  for (const [i, entry] of resolved.entries()) {
+    const match = await previews.find(entry.title, entry.artist, entry.durationMs)
+    if (match) {
+      entry.preview = match.url
+      entry.previewProvider = match.provider
+    }
+
+    const mark = match ? (match.provider === 'itunes' ? '·' : 'd') : '×'
+    console.log(
+      `  ${mark} [${String(i + 1).padStart(3)}/${resolved.length}] ${entry.title} — ${entry.artist}`,
+    )
+
+    if (i % 20 === 0) writeJson(PREVIEW_CACHE_PATH, previews.cacheData)
+  }
+
+  writeJson(PREVIEW_CACHE_PATH, previews.cacheData)
+
   const playable = resolved.filter((r) => r.year !== undefined && r.confidence !== 'needs-review')
   const review = resolved.filter((r) => r.confidence === 'needs-review')
 
@@ -293,6 +324,8 @@ async function main() {
       artist: r.artist,
       year: r.year,
       art: r.art,
+      preview: r.preview,
+      previewProvider: r.previewProvider,
       confidence: r.confidence,
     })),
   )
@@ -308,6 +341,7 @@ async function main() {
       title: r.title,
       artist: r.artist,
       art: r.art,
+      preview: r.preview,
       /** Best guess. Deliberately not treated as fact until approved. */
       suggested: r.year,
       candidates: {
@@ -332,6 +366,21 @@ async function main() {
   console.log(`  fetched        ${resolved.length}`)
   console.log(`  in the deck    ${playable.length}  (${pct}%)`)
   console.log(`  needs review   ${review.length}`)
+  const withPreview = playable.filter((r) => r.preview).length
+  const pctPreview = playable.length ? Math.round((withPreview / playable.length) * 100) : 0
+  console.log(`  with preview   ${withPreview}  (${pctPreview}% — playable without a login)`)
+  console.log(
+    `  preview source ${previews.stats.itunes} iTunes`,
+  )
+  if (previews.stats.throttled) {
+    console.log(`  throttled      ${previews.stats.throttled} requests (backed off and retried)`)
+  }
+  if (previews.stats.rejected || previews.stats.missing) {
+    console.log(
+      `  no preview     ${previews.stats.rejected} rejected by the match guard, ` +
+        `${previews.stats.missing} not in either catalogue`,
+    )
+  }
   console.log(`  MusicBrainz    ${mb.stats.calls} calls, ${mb.stats.cacheHits} cached`)
   if (mb.stats.failed) {
     console.log(`  lookups failed ${mb.stats.failed}  (those tracks fell through to review)`)

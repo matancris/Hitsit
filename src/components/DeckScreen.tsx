@@ -21,7 +21,7 @@ export function DeckScreen({
   previewing,
 }: {
   onBack: () => void
-  onPreview: (uri: string) => void
+  onPreview: (card: ReviewEntry) => void
   previewing: boolean
 }) {
   const [deck, setDeck] = useState<DeckEntry[]>([])
@@ -244,7 +244,7 @@ function ReviewList({
   previewing,
 }: {
   items: ReviewEntry[]
-  onPreview: (uri: string) => void
+  onPreview: (card: ReviewEntry) => void
   previewing: boolean
 }) {
   if (items.length === 0) {
@@ -265,7 +265,7 @@ function ReviewCard({
   previewing,
 }: {
   entry: ReviewEntry
-  onPreview: (uri: string) => void
+  onPreview: (card: ReviewEntry) => void
   previewing: boolean
 }) {
   const decision = useDecisions((s) => s.byId[entry.id])
@@ -300,7 +300,7 @@ function ReviewCard({
         </div>
         <button
           type="button"
-          onClick={() => onPreview(entry.uri)}
+          onClick={() => onPreview(entry)}
           disabled={previewing}
           className="meta shrink-0 rounded px-2 py-1 hover:bg-ivory/10 disabled:opacity-30"
         >

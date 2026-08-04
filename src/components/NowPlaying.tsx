@@ -4,6 +4,8 @@ interface Props {
   playing: boolean
   /** 0–1. Elapsed position only — nothing here identifies the track. */
   progress: number
+  /** Real length of whatever is playing: ~30s for a preview, minutes on Spotify. */
+  durationMs: number
   onToggle: () => void
   onReplay: () => void
   disabled?: boolean
@@ -17,10 +19,16 @@ function fmt(seconds: number): string {
 }
 
 /** Transport for the face-down card. Deliberately shows no metadata. */
-export function NowPlaying({ playing, progress, onToggle, onReplay, disabled, note }: Props) {
-  // Assume a standard track length purely for the elapsed readout; the SDK
-  // supplies real values once connected.
-  const elapsed = progress * 210
+export function NowPlaying({
+  playing,
+  progress,
+  durationMs,
+  onToggle,
+  onReplay,
+  disabled,
+  note,
+}: Props) {
+  const elapsed = (progress * durationMs) / 1000
 
   return (
     <section className="flex flex-col items-center gap-5 border-t border-edge px-6 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">

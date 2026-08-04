@@ -1,6 +1,7 @@
 import type { Card, DeckEntry, ReviewEntry } from '@/types'
 import sample from '@/data/deck.sample.json'
 import { useDecisions } from '@/store/decisions'
+import type { Source } from '@/store/source'
 
 /**
  * Loads the deck built by scripts/build-deck.ts, falling back to the bundled
@@ -40,17 +41,22 @@ export function loadBaseDeck(): Promise<DeckEntry[]> {
  * The deck the game actually plays: confident tracks, minus anything declined,
  * plus any flagged track approved with a year.
  */
-export async function loadDeck(): Promise<Card[]> {
+export async function loadDeck(source: Source = 'preview'): Promise<Card[]> {
   const [base, review] = await Promise.all([loadBaseDeck(), loadReview()])
   if (base.length === 0) return sample as DeckEntry[]
 
   const decisions = useDecisions.getState().byId
 
-  const kept = base.filter((c) => decisions[c.id]?.status !== 'declined')
+  // In preview mode a track without a clip has no audio at all, so it is left
+  // out rather than played in silence. Those tracks are still there on Spotify.
+  const playable = source === 'preview' ? base.filter((c) => c.preview) : base
+
+  const kept = playable.filter((c) => decisions[c.id]?.status !== 'declined')
 
   const approved = review.flatMap((r) => {
     const d = decisions[r.id]
     if (d?.status !== 'approved') return []
+    if (source === 'preview' && !r.preview) return []
     return [
       {
         id: r.id,
@@ -58,6 +64,7 @@ export async function loadDeck(): Promise<Card[]> {
         title: r.title,
         artist: r.artist,
         art: r.art,
+        preview: r.preview,
         year: d.year,
       } satisfies Card,
     ]

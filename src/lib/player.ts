@@ -1,3 +1,4 @@
+import type { Playable } from '@/types'
 import { getAccessToken } from './spotify-auth'
 
 /**
@@ -69,7 +70,12 @@ export class PlaybackError extends Error {
 
 export interface Playback {
   deviceId: string
-  play: (uri: string) => Promise<void>
+  /**
+   * Takes the track rather than a URI so each backend reads the field it needs
+   * — Spotify the `uri`, previews the `preview` URL. Otherwise every caller
+   * would have to know which backend is active.
+   */
+  play: (card: Playable) => Promise<void>
   pause: () => Promise<void>
   resume: () => Promise<void>
   toggle: () => Promise<void>
@@ -184,15 +190,15 @@ export async function createPlayback(): Promise<Playback> {
 
   return {
     deviceId,
-    play: async (uri) => {
+    play: async (card) => {
       try {
-        await start(uri)
+        await start(card.uri)
       } catch (err) {
         if (!(err instanceof PlaybackError) || err.kind !== 'device') throw err
         // Claim the device, give Spotify a beat to register it, then retry once.
         await transfer()
         await new Promise((r) => setTimeout(r, 400))
-        await start(uri)
+        await start(card.uri)
       }
     },
     pause: () => player.pause(),
